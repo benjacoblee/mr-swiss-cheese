@@ -2,7 +2,6 @@ require("newrelic");
 require("dotenv").config();
 const { Telegraf, Markup } = require("telegraf");
 const moment = require("moment");
-const bot = new Telegraf(process.env.TELEGRAM_BOT_TOKEN);
 const options = {
   isRemind: false,
   isReminder: false,
@@ -40,8 +39,11 @@ const mongoUtil = require("./utils/mongoUtil");
 
 const PORT = process.env.PORT || 3000;
 const URL = process.env.URL;
-bot.telegram.setWebhook(`${URL}/bot${API_TOKEN}`);
-bot.startWebhook(`/bot${API_TOKEN}`, null, PORT);
+const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
+
+const bot = new Telegraf(BOT_TOKEN);
+bot.telegram.setWebhook(`${URL}/bot${BOT_TOKEN}`);
+bot.startWebhook(`/bot${BOT_TOKEN}`, null, PORT);
 
 bot.use(async (ctx, next) => {
   console.time(`Processing update ${ctx.update.update_id}`);
