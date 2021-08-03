@@ -1,3 +1,4 @@
+require("newrelic");
 require("dotenv").config();
 const { Telegraf, Markup } = require("telegraf");
 const moment = require("moment");
