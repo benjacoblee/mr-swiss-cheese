@@ -1,15 +1,17 @@
+export {};
+
 require("dotenv").config();
-const { Telegraf, Markup } = require("telegraf");
-const moment = require("moment");
-const { addReminder, checkReminders, getReminders } = require("./reminders");
-const { getLocalNews, getGlobalNews } = require("./news");
-const {
+import { Telegraf, Markup } from "telegraf";
+import moment from "moment";
+import { addReminder, checkReminders, getReminders } from "./reminders";
+import { getLocalNews, getGlobalNews } from "./news";
+import {
   getLocations,
   getTwoHourForecast,
   getAllDayForecast,
   getFourDayForecast,
-} = require("./weather");
-const {
+} from "./weather";
+import {
   toggleOptions,
   validateUnit,
   clearReminderInput,
@@ -20,27 +22,23 @@ const {
   generateHTMLForFourDayForecast,
   validateDate,
   chunkArrs,
-} = require("./utils");
-const {
+} from "./utils";
+import {
   optionsKeys,
   reminderInput,
   validTimeUnits,
   helpText,
   startText,
   options,
-} = require("./constants");
-const mongoUtil = require("./utils/mongoUtil");
+} from "./constants";
+import { connectToServer } from "./utils/mongoUtil";
 
-const PORT = process.env.PORT || 3000;
+const PORT = parseInt(process.env.PORT) || 3000;
 const URL = process.env.URL;
-const BOT_TOKEN =
-  process.env.NODE_ENV === "production"
-    ? process.env.BOT_TOKEN
-    : process.env.BOT_TEST_TOKEN;
+const BOT_TOKEN = process.env.BOT_TOKEN;
 const bot = new Telegraf(BOT_TOKEN);
 
 bot.telegram.setWebhook(`${URL}/bot${BOT_TOKEN}`);
-bot.startWebhook(`/bot${BOT_TOKEN}`, null, PORT);
 
 bot.use(async (ctx, next) => {
   console.time(`Processing update ${ctx.update.update_id}`);
@@ -77,19 +75,19 @@ bot.command("remind", (ctx) => {
         );
       } else if (!reminderInput.unit) {
         if (validateDate(text)) {
-          const diff =
-            moment(text, "DD-MM-YY").diff(moment(new Date()), "days") + 1;
+          const diff = moment(text, "DD-MM-YY").add(1, "day");
+          const diffToDisplay = moment(diff).diff(Date.now(), "days");
 
           ctx.reply(
-            `Ok! I will remind you to ${reminderInput.title} in ${diff} day${
-              diff > 1 ? "s" : ""
+            `Ok! I will remind you to ${
+              reminderInput.title
+            } in ${diffToDisplay} day${
+              moment(Date.now()).diff(diff, "days") > 1 ? "s" : ""
             }!`,
             Markup.removeKeyboard()
           );
 
-          reminderInput.due = moment(Date.now())
-            .add(moment(diff), "days")
-            .toDate();
+          reminderInput.due = diff.toDate();
 
           addReminder({
             chatId: ctx.update.message.chat.id,
@@ -140,7 +138,7 @@ bot.command("remind", (ctx) => {
 });
 
 bot.command("reminders", async (ctx) => {
-  const chatId = parseInt(ctx.update.message.chat.id);
+  const chatId = ctx.update.message.chat.id;
   const reminders = await getReminders(chatId);
 
   if (reminders.length) {
@@ -200,7 +198,7 @@ bot.command("weather", (ctx) => {
   bot.command("twohour", async (ctx) => {
     if (options.isWeather) {
       const locations = await getLocations();
-      const locationsMap = locations.map((location) => {
+      const locationsMap = locations.map((location: string) => {
         return `/${location.replace(/ /g, "")}`;
       });
 
@@ -209,7 +207,8 @@ bot.command("weather", (ctx) => {
         Markup.keyboard(chunkArrs(Object.values(locationsMap), 2))
       );
 
-      bot.command(async (ctx) => {
+      bot.hears(new RegExp("^[a-zA-Z0-9/]+$"), async (ctx) => {
+        console.log(ctx);
         if (options.isWeather) {
           if (Object.values(locationsMap).includes(ctx.message.text)) {
             const location = ctx.message.text;
@@ -243,12 +242,18 @@ bot.command("weather", (ctx) => {
   });
 });
 
-mongoUtil.connectToServer(async (err, client) => {
+connectToServer(async (err) => {
   if (err) {
-    console.log(err);
+    throw new Error();
   } else {
     console.log("Connected to MongoDB...");
-    await bot.launch();
+    await bot.launch({
+      webhook: {
+        hookPath: `/bot${BOT_TOKEN}`,
+        tlsOptions: null,
+        port: PORT,
+      },
+    });
     console.log("Bot is up...");
     checkReminders(bot).start();
   }

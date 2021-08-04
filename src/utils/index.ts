@@ -1,7 +1,17 @@
-const { validTimeUnits, reminderInput } = require("../constants");
-const moment = require("moment");
+export {};
 
-const toggleOptions = (options, option) => {
+import moment from "moment";
+import { validTimeUnits, reminderInput } from "../constants";
+
+export const toggleOptions = (
+  options: {
+    isRemind: boolean;
+    isReminder: boolean;
+    isNews: boolean;
+    isWeather: boolean;
+  },
+  option?: string
+) => {
   for (const [key] of Object.entries(options)) {
     options[key] = false;
   }
@@ -9,25 +19,25 @@ const toggleOptions = (options, option) => {
   if (option) options[option] = true;
 };
 
-const validateUnit = (unit) => validTimeUnits.includes(unit);
+export const validateUnit = (unit: string) => validTimeUnits.includes(unit);
 
-const validateDate = (dateStr) => {
+export const validateDate = (dateStr: string) => {
   return (
     moment(dateStr, "DD-MM-YY").isValid() &&
     moment(dateStr, "DD-MM-YY").diff(moment(new Date()), "days") >= 0
   );
 };
 
-const validateAmount = (duration) =>
-  !isNaN(parseInt(duration)) && duration >= 1;
+export const validateAmount = (duration: string) =>
+  !isNaN(parseInt(duration)) && parseInt(duration) > 1;
 
-const clearReminderInput = () => {
+export const clearReminderInput = () => {
   for (let key in reminderInput) {
     reminderInput[key] = "";
   }
 };
 
-const generateHTMLForReminders = (reminders) => {
+export const generateHTMLForReminders = (reminders) => {
   let html = "";
 
   reminders.forEach((reminder, idx) => {
@@ -42,14 +52,14 @@ const generateHTMLForReminders = (reminders) => {
   return html;
 };
 
-const calculateDiff = (due, unit) => {
+export const calculateDiff = (due, unit) => {
   const now = moment(Date.now());
   const later = moment(due);
   const diff = later.diff(now, unit, true);
   return diff;
 };
 
-const generateHTMLForNews = (newsArticles) => {
+export const generateHTMLForNews = (newsArticles) => {
   let html = "";
   newsArticles.forEach((article) => {
     const { link, contentSnippet } = article;
@@ -61,7 +71,7 @@ const generateHTMLForNews = (newsArticles) => {
   return html;
 };
 
-const generateHTMLForAllDayForecast = (forecast) => {
+export const generateHTMLForAllDayForecast = (forecast) => {
   const { today, tonight } = forecast;
 
   let html = `<b>${moment(today.time.start).format("ddd, hA")} - ${moment(
@@ -93,7 +103,7 @@ const generateHTMLForAllDayForecast = (forecast) => {
   return html;
 };
 
-const generateHTMLForFourDayForecast = (forecasts) => {
+export const generateHTMLForFourDayForecast = (forecasts) => {
   let html = "";
 
   for (let forecastObj of forecasts) {
@@ -106,7 +116,7 @@ const generateHTMLForFourDayForecast = (forecasts) => {
   return html;
 };
 
-const chunkArrs = (arr, chunkSize) => {
+export const chunkArrs = (arr, chunkSize) => {
   const chunkedArr = [];
   let i = 0;
 
@@ -115,18 +125,4 @@ const chunkArrs = (arr, chunkSize) => {
   }
 
   return chunkedArr;
-};
-
-module.exports = {
-  toggleOptions,
-  validateUnit,
-  validateDate,
-  clearReminderInput,
-  validateAmount,
-  generateHTMLForReminders,
-  calculateDiff,
-  generateHTMLForNews,
-  generateHTMLForAllDayForecast,
-  generateHTMLForFourDayForecast,
-  chunkArrs,
 };

@@ -1,7 +1,7 @@
 // https://api.data.gov.sg/v1/environment/2-hour-weather-forecast
-const axios = require("axios");
+import axios from "axios";
 
-const getLocations = async () => {
+export const getLocations = async () => {
   try {
     const res = await axios.get(
       "https://api.data.gov.sg/v1/environment/2-hour-weather-forecast"
@@ -17,7 +17,7 @@ const getLocations = async () => {
   }
 };
 
-const getTwoHourForecast = async (location) => {
+export const getTwoHourForecast = async (location: string) => {
   try {
     const res = await axios.get(
       "https://api.data.gov.sg/v1/environment/2-hour-weather-forecast"
@@ -44,7 +44,7 @@ const getTwoHourForecast = async (location) => {
   }
 };
 
-const getAllDayForecast = async () => {
+export const getAllDayForecast = async () => {
   try {
     const res = await axios.get(
       "https://api.data.gov.sg/v1/environment/24-hour-weather-forecast"
@@ -66,7 +66,7 @@ const getAllDayForecast = async () => {
   }
 };
 
-const getFourDayForecast = async () => {
+export const getFourDayForecast = async () => {
   try {
     const res = await axios.get(
       "https://api.data.gov.sg/v1/environment/4-day-weather-forecast"
@@ -80,11 +80,4 @@ const getFourDayForecast = async () => {
   } catch (err) {
     return err;
   }
-};
-
-module.exports = {
-  getLocations,
-  getTwoHourForecast,
-  getAllDayForecast,
-  getFourDayForecast,
 };

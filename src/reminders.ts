@@ -1,25 +1,25 @@
 const CronJob = require("cron").CronJob;
-const { calculateDiff } = require("./utils");
-const mongoUtil = require("./utils/mongoUtil");
+import { getDB } from "./utils/mongoUtil";
+import { calculateDiff } from "./utils";
 
-const addReminder = (reminder) => {
-  const db = mongoUtil.getDB();
+export const addReminder = (reminder) => {
+  const db = getDB();
   const collection = db.collection("reminders");
   collection.insertOne(reminder);
 };
 
-const getReminders = (chatId) => {
-  const db = mongoUtil.getDB();
+export const getReminders = (chatId) => {
+  const db = getDB();
   const collection = db.collection("reminders");
   const reminders = collection.find({ chatId }).sort({ due: 1 }).toArray();
   return reminders;
 };
 
-const checkReminders = (bot) => {
+export const checkReminders = (bot) => {
   return new CronJob(
     "* * * * * *",
     async () => {
-      const db = mongoUtil.getDB();
+      const db = getDB();
 
       const collection = db.collection("reminders");
       const reminders = await collection
@@ -28,14 +28,15 @@ const checkReminders = (bot) => {
         .limit(3)
         .toArray();
 
-      for (reminder of reminders) {
+      for (let reminder of reminders) {
         if (calculateDiff(reminder.due, reminder.unit) < 0) {
           const { chatId, username, title } = reminder;
-          await collection.deleteOne({ _id: reminder._id });
-          bot.telegram.sendMessage(
-            chatId,
-            `Hey ${username}, time to ${title.toLowerCase()}!`
-          );
+          await collection.deleteOne({ _id: reminder._id }).then(() => {
+            bot.telegram.sendMessage(
+              chatId,
+              `Hey ${username}, time to ${title.toLowerCase()}!`
+            );
+          });
         }
       }
     },
@@ -43,5 +44,3 @@ const checkReminders = (bot) => {
     false
   );
 };
-
-module.exports = { addReminder, getReminders, checkReminders };
