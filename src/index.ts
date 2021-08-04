@@ -119,8 +119,6 @@ bot.command("remind", (ctx) => {
         } else if (validateAmount(text)) {
           reminderInput.due = parseInt(text);
 
-          console.log(reminderInput);
-
           ctx.reply(
             `Ok! I will remind you to ${reminderInput.title} in ${
               reminderInput.due
