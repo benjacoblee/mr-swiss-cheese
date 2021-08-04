@@ -36,7 +36,6 @@ import { connectToServer } from "./utils/mongoUtil";
 
 const app = express();
 const PORT = parseInt(process.env.PORT) || 3000;
-const URL = process.env.URL;
 const BOT_TOKEN = process.env.BOT_TOKEN;
 const bot = new Telegraf(BOT_TOKEN);
 
@@ -67,7 +66,10 @@ bot.command("remind", (ctx) => {
 
   ctx.reply("Ok, what do you want to be reminded about?");
 
-  bot.on("text", (ctx) => {
+  bot.on("text", (ctx, next) => {
+    if (!options.isRemind) {
+      return next();
+    }
     if (options.isRemind) {
       let { text } = ctx.update.message;
 
@@ -106,15 +108,18 @@ bot.command("remind", (ctx) => {
             Markup.removeKeyboard()
           );
         } else {
-          ctx.reply("Sorry, that's invalid.");
+          ctx.reply(
+            "Sorry, that's invalid.",
+            Markup.keyboard(chunkArrs(validTimeUnits, 2))
+          );
         }
       } else if (!reminderInput.due) {
         if (!validateAmount(text)) {
           ctx.reply(`Sorry, has to be one or more ${reminderInput.unit}!`);
-        }
+        } else if (validateAmount(text)) {
+          reminderInput.due = parseInt(text);
 
-        if (validateAmount(text)) {
-          reminderInput.due = text;
+          console.log(reminderInput);
 
           ctx.reply(
             `Ok! I will remind you to ${reminderInput.title} in ${
@@ -202,34 +207,26 @@ bot.command("weather", (ctx) => {
   bot.command("twohour", async (ctx) => {
     if (options.isWeather) {
       const locations = await getLocations();
-      const locationsMap = locations.map((location: string) => {
-        return `/${location.replace(/ /g, "")}`;
-      });
 
       ctx.reply(
         "Ok, choose a location.",
-        Markup.keyboard(chunkArrs(Object.values(locationsMap), 2))
+        Markup.keyboard(chunkArrs(Object.values(locations), 2))
       );
 
-      bot.hears(new RegExp("^[a-zA-Z0-9/]+$"), async (ctx) => {
-        console.log(ctx);
+      bot.hears(locations, async (ctx) => {
         if (options.isWeather) {
-          if (Object.values(locationsMap).includes(ctx.message.text)) {
-            const location = ctx.message.text;
+          const location = ctx.message.text;
 
-            ctx.reply(
-              `Ok, getting two-hour forecast for ${location}...`,
-              Markup.removeKeyboard()
-            );
+          ctx.reply(
+            `Ok, getting two-hour forecast for ${location}...`,
+            Markup.removeKeyboard()
+          );
 
-            const forecastObj = await getTwoHourForecast(location);
-            const { area, forecast } = forecastObj;
+          const forecastObj = await getTwoHourForecast(location);
+          const { area, forecast } = forecastObj;
 
-            if (forecast) {
-              ctx.replyWithHTML(`Forecast for ${area}: <b>${forecast}</b>`);
-            }
-          } else {
-            ctx.reply("Sorry, please choose a valid location.");
+          if (forecast) {
+            ctx.replyWithHTML(`Forecast for ${area}: <b>${forecast}</b>`);
           }
         }
       });
