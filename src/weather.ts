@@ -23,20 +23,9 @@ export const getTwoHourForecast = async (location: string) => {
       "https://api.data.gov.sg/v1/environment/2-hour-weather-forecast"
     );
 
-    const forecasts = res.data.items[0].forecasts.reduce((prev, curr) => {
-      const { area, forecast } = curr;
-      const mutated = {
-        area,
-        forecast,
-        forecastToFind: `/${area.replace(/ /g, "")}`,
-      };
+    const forecasts = res.data.items[0].forecasts;
 
-      return [...prev, mutated];
-    }, []);
-
-    const forecast = forecasts.find(
-      (forecast) => forecast.forecastToFind === location
-    );
+    const forecast = forecasts.find(({ area }) => area === location);
 
     return forecast;
   } catch (err) {
