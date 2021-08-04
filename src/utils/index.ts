@@ -19,14 +19,13 @@ export const toggleOptions = (
   if (option) options[option] = true;
 };
 
-export const validateUnit = (unit: string) => validTimeUnits.includes(unit);
-
-export const validateDate = (dateStr: string) => {
-  return (
-    moment(dateStr, "DD-MM-YY").isValid() &&
-    moment(dateStr, "DD-MM-YY").diff(moment(new Date()), "days") >= 0
-  );
+export const validateUnit = (unit: string) => {
+  return validTimeUnits.includes(unit);
 };
+
+export const validateDate = (dateStr: string) =>
+  moment(dateStr, "DD-MM-YY", true).isValid() &&
+  moment(dateStr, "DD-MM-YY").diff(moment(new Date()), "days") >= 0;
 
 export const validateAmount = (duration: string) =>
   !isNaN(parseInt(duration)) && parseInt(duration) > 1;
