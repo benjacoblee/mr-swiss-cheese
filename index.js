@@ -1,13 +1,6 @@
-require("newrelic");
 require("dotenv").config();
 const { Telegraf, Markup } = require("telegraf");
 const moment = require("moment");
-const options = {
-  isRemind: false,
-  isReminder: false,
-  isNews: false,
-  isWeather: false,
-};
 const { addReminder, checkReminders, getReminders } = require("./reminders");
 const { getLocalNews, getGlobalNews } = require("./news");
 const {
@@ -27,21 +20,25 @@ const {
   generateHTMLForFourDayForecast,
   validateDate,
   chunkArrs,
-} = require("./utils/utils");
+} = require("./utils");
 const {
   optionsKeys,
   reminderInput,
   validTimeUnits,
   helpText,
   startText,
+  options,
 } = require("./constants");
 const mongoUtil = require("./utils/mongoUtil");
 
 const PORT = process.env.PORT || 3000;
 const URL = process.env.URL;
-const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
-
+const BOT_TOKEN =
+  process.env.NODE_ENV === "production"
+    ? process.env.BOT_TOKEN
+    : process.env.BOT_TEST_TOKEN;
 const bot = new Telegraf(BOT_TOKEN);
+
 bot.telegram.setWebhook(`${URL}/bot${BOT_TOKEN}`);
 bot.startWebhook(`/bot${BOT_TOKEN}`, null, PORT);
 
@@ -246,16 +243,15 @@ bot.command("weather", (ctx) => {
   });
 });
 
-bot.launch().then(() => {
-  console.log("Bot is up...");
-  mongoUtil.connectToServer((err, client) => {
-    if (err) {
-      console.log(err);
-    } else {
-      console.log("Connected to MongoDB...");
-      checkReminders(bot).start();
-    }
-  });
+mongoUtil.connectToServer(async (err, client) => {
+  if (err) {
+    console.log(err);
+  } else {
+    console.log("Connected to MongoDB...");
+    await bot.launch();
+    console.log("Bot is up...");
+    checkReminders(bot).start();
+  }
 });
 
 // Enable graceful stop
