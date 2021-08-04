@@ -34,10 +34,18 @@ Hi! I'm Mr Swiss Cheese. Here's a list of things I can do:\n
 <b><a href="/cancel">/cancel</a></b> Cancels current operation\n
 `;
 
+const options = {
+  isRemind: false,
+  isReminder: false,
+  isNews: false,
+  isWeather: false,
+};
+
 module.exports = {
   optionsKeys,
   validTimeUnits,
   reminderInput,
   startText,
   helpText,
+  options,
 };
