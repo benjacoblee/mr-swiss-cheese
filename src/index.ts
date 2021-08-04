@@ -2,6 +2,7 @@ export {};
 
 require("dotenv").config();
 import { Telegraf, Markup } from "telegraf";
+import express from "express";
 import moment from "moment";
 import { addReminder, checkReminders, getReminders } from "./reminders";
 import { getLocalNews, getGlobalNews } from "./news";
@@ -33,12 +34,15 @@ import {
 } from "./constants";
 import { connectToServer } from "./utils/mongoUtil";
 
+const app = express();
 const PORT = parseInt(process.env.PORT) || 3000;
 const URL = process.env.URL;
 const BOT_TOKEN = process.env.BOT_TOKEN;
 const bot = new Telegraf(BOT_TOKEN);
 
-bot.telegram.setWebhook(`${URL}/bot${BOT_TOKEN}`);
+app.listen(PORT, () => {
+  console.log(`Listening on port ${PORT}`);
+});
 
 bot.use(async (ctx, next) => {
   console.time(`Processing update ${ctx.update.update_id}`);
@@ -247,13 +251,7 @@ connectToServer(async (err) => {
     throw new Error();
   } else {
     console.log("Connected to MongoDB...");
-    await bot.launch({
-      webhook: {
-        hookPath: `/bot${BOT_TOKEN}`,
-        tlsOptions: null,
-        port: PORT,
-      },
-    });
+    await bot.launch();
     console.log("Bot is up...");
     checkReminders(bot).start();
   }
