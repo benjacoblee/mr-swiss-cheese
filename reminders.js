@@ -1,5 +1,5 @@
 const CronJob = require("cron").CronJob;
-const { calculateDiff } = require("./utils/utils");
+const { calculateDiff } = require("./utils");
 const mongoUtil = require("./utils/mongoUtil");
 
 const addReminder = (reminder) => {
