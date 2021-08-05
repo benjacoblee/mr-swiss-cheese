@@ -61,10 +61,12 @@ export const calculateDiff = (due, unit) => {
 export const generateHTMLForNews = (newsArticles) => {
   let html = "";
   newsArticles.forEach((article) => {
-    const { link, contentSnippet } = article;
-    html += `${contentSnippet
-      .replace(/(\r\n|\n|\r)/gm, " ")
-      .replace(/\s+/g, " ")} <a href="${link}">Read more</a>\n\n`;
+    const { title, link, contentSnippet } = article;
+    html += `${
+      contentSnippet
+        ? contentSnippet.replace(/(\r\n|\n|\r)/gm, " ").replace(/\s+/g, " ")
+        : title
+    } <a href="${link}">Read more</a>\n\n`;
   });
 
   return html;
