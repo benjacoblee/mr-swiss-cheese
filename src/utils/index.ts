@@ -25,10 +25,10 @@ export const validateUnit = (unit: string) => {
 
 export const validateDate = (dateStr: string) =>
   moment(dateStr, "DD-MM-YY", true).isValid() &&
-  moment(dateStr, "DD-MM-YY").diff(moment(new Date()), "days") >= 0;
+  moment(dateStr, "DD-MM-YY", true).diff(moment(new Date()), "days") >= 0;
 
 export const validateAmount = (duration: string) =>
-  !isNaN(parseInt(duration)) && parseInt(duration) > 1;
+  !isNaN(parseInt(duration)) && parseInt(duration) >= 1;
 
 export const clearReminderInput = () => {
   for (let key in reminderInput) {
