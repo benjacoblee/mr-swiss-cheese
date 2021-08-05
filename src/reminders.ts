@@ -2,13 +2,19 @@ const CronJob = require("cron").CronJob;
 import { getDB } from "./utils/mongoUtil";
 import { calculateDiff } from "./utils";
 
-export const addReminder = (reminder) => {
+export const addReminder = (reminder: {
+  chatId: number;
+  title: string;
+  unit?: string;
+  due: Date;
+  username: string;
+}) => {
   const db = getDB();
   const collection = db.collection("reminders");
   collection.insertOne(reminder);
 };
 
-export const getReminders = (chatId) => {
+export const getReminders = (chatId: number) => {
   const db = getDB();
   const collection = db.collection("reminders");
   const reminders = collection.find({ chatId }).sort({ due: 1 }).toArray();
