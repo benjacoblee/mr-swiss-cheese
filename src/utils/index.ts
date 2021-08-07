@@ -25,7 +25,7 @@ export const validateUnit = (unit: string) => {
 
 export const validateDate = (dateStr: string) =>
   moment(dateStr, "DD-MM-YY", true).isValid() &&
-  moment(dateStr, "DD-MM-YY", true).diff(moment(new Date()), "days") >= 0;
+  moment(dateStr, "DD-MM-YY", true).diff(moment(new Date()), "days") + 1 > 0;
 
 export const validateAmount = (duration: string) =>
   !isNaN(parseInt(duration)) && parseInt(duration) >= 1;
@@ -39,7 +39,7 @@ export const clearReminderInput = () => {
 export const generateHTMLForReminders = (reminders) => {
   let html = "";
 
-  reminders.forEach((reminder, idx) => {
+  reminders.forEach((reminder, idx: number) => {
     const { due, unit, title } = reminder;
     const diff = calculateDiff(due, unit);
     const humanizedDiff = moment.duration(diff, unit).humanize();
@@ -117,7 +117,7 @@ export const generateHTMLForFourDayForecast = (forecasts) => {
   return html;
 };
 
-export const chunkArrs = (arr, chunkSize) => {
+export const chunkArrs = (arr: string[], chunkSize: number) => {
   const chunkedArr = [];
   let i = 0;
 
