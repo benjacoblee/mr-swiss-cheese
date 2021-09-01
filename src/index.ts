@@ -118,7 +118,7 @@ bot.command("remind", (ctx) => {
         reminderInput.due = parseInt(text);
 
         ctx.reply(
-          `Ok! I will remind you to ${reminderInput.title} in ${
+          `Ok! I will remind you to ${reminderInput.title.toLowerCase()} in ${
             reminderInput.due
           } ${reminderInput.unit.substr(0, reminderInput.unit.length - 1)}${
             reminderInput.due > 1 ? "s" : ""
