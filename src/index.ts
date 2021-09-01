@@ -85,9 +85,7 @@ bot.command("remind", (ctx) => {
         const diffToDisplay = moment(diff).diff(Date.now(), "days");
 
         ctx.reply(
-          `Ok! I will remind you to ${
-            reminderInput.title
-          } in ${diffToDisplay} day${
+          `Ok! I will remind you to ${reminderInput.title.toLowerCase()} in ${diffToDisplay} day${
             moment(Date.now()).diff(diff, "days") > 1 ? "s" : ""
           }!`,
           Markup.removeKeyboard()
